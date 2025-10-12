@@ -1,6 +1,6 @@
 [submodule "auth"]
 	path = auth
-	url = https://github.com/BackendWorks/auth.git
+	url = https://github.com/tinhthanh/auth.git
 [submodule "post"]
 	path = post
-	url = https://github.com/BackendWorks/post.git
+	url = https://github.com/tinhthanh/post.git
