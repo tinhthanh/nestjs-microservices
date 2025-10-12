@@ -31,7 +31,7 @@ graph TB
     Client[Client Applications] --> Kong[Kong API Gateway<br/>Port: 8000]
     Kong --> Auth[Auth Service<br/>Port: 9001]
     Kong --> Post[Post Service<br/>Port: 9002]
-    Auth --> PostgreSQL[(PostgreSQL<br/>Port: 5432)]
+    Auth --> PostgreSQL[(PostgreSQL<br/>Port: 5435)]
     Post --> PostgreSQL
     Auth --> Redis[(Redis<br/>Port: 6379)]
     Post --> Redis
@@ -122,7 +122,7 @@ HTTP_VERSIONING_ENABLE=true
 HTTP_VERSION=1
 
 # Database Configuration
-DATABASE_URL="postgresql://admin:master123@localhost:5432/postgres?schema=public"
+DATABASE_URL="postgresql://admin:master123@localhost:5435/postgres?schema=public"
 
 # JWT Configuration
 ACCESS_TOKEN_SECRET_KEY="EAJYjNJUnRGJ6uq1YfGw4NG1pd1z102J"
@@ -157,7 +157,7 @@ HTTP_VERSIONING_ENABLE=true
 HTTP_VERSION=1
 
 # Database Configuration
-DATABASE_URL="postgresql://admin:master123@localhost:5432/postgres?schema=public"
+DATABASE_URL="postgresql://admin:master123@localhost:5435/postgres?schema=public"
 
 # JWT Configuration
 ACCESS_TOKEN_SECRET_KEY="EAJYjNJUnRGJ6uq1YfGw4NG1pd1z102J"
@@ -331,7 +331,7 @@ DELETE /post/post/batch             # Bulk delete posts (protected)
 - **API Docs**: `http://localhost:9002/docs`
 
 ### 🗄️ Database & Cache
-- **PostgreSQL**: `localhost:5432`
+- **PostgreSQL**: `localhost:5435`
 - **Redis**: `localhost:6379`
 
 ## 🧪 Development
@@ -438,7 +438,7 @@ Set production environment variables:
 
 ```bash
 # Database
-DATABASE_URL=postgresql://user:pass@host:5432/db
+DATABASE_URL=postgresql://user:pass@host:5435/db
 
 # Redis
 REDIS_URL=redis://host:6379
@@ -604,6 +604,48 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   <a href="https://www.postgresql.org/"><img src="https://www.postgresql.org/media/img/about/press/elephant.png" width="120" alt="PostgreSQL Logo" /></a>
 </div>
 
+# 2. Khởi tạo và clone tất cả submodules
+git submodule init
+git submodule update
+
+# Hoặc gộp 2 lệnh trên thành 1
+git submodule update --init --recursive
+
+
+# Kiểm tra trạng thái submodules
+git submodule status
 
 
 
+# Cập nhật tất cả submodules lên version mới nhất
+git submodule update --remote --merge
+
+# Hoặc cập nhật từng submodule riêng
+cd auth
+git pull origin main
+cd ..
+
+cd post
+git pull origin main
+cd ..
+
+
+📋 Bước 1: Chạy Database Migrations
+# Tạo schema cho Auth Service
+docker-compose exec auth-service npm run prisma:migrate
+
+# Tạo schema cho Post Service
+docker-compose exec post-service npm run prisma:migrate
+
+# Generate Prisma Client
+docker-compose exec auth-service npm run prisma:generate
+docker-compose exec post-service npm run prisma:generate
+
+
+./test-all.sh          - Run all API tests
+./run-all-tests.sh     - Run all unit tests
+
+docker-compose up -d --build post-service
+docker-compose up -d --build auth-service
+
+docker-compose up -d --build

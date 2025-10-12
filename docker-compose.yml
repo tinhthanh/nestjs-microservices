@@ -90,7 +90,7 @@ services:
     container_name: bw-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "5435:5432"
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: master123
