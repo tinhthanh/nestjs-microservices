@@ -1,0 +1,248 @@
+openapi: 3.0.0
+info:
+  title: Post Service API
+  description: Dịch vụ quản lý các bài viết (posts).
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8000/post
+    description: Local Development Server (via Kong Gateway)
+
+tags:
+  - name: Posts
+    description: Các API CRUD cho bài viết
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ========== DTOs for Request Bodies ==========
+    PostCreateDto:
+      type: object
+      required: [title, content]
+      properties:
+        title:
+          type: string
+          example: "Tiêu đề bài viết mới"
+        content:
+          type: string
+          example: "Nội dung chi tiết của bài viết."
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          example: ["https://example.com/image1.png"]
+
+    PostUpdateDto:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Tiêu đề đã được cập nhật"
+        content:
+          type: string
+          example: "Nội dung đã được cập nhật."
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    PostBulkDeleteDto:
+      type: object
+      required: [ids]
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          example: ["uuid-1", "uuid-2"]
+
+    # ========== DTOs for Responses ==========
+    UserStubDto: # DTO rút gọn cho thông tin user trong post
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        # Có thể thêm các trường khác như email, name nếu cần
+        
+    PostResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        content:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        createdBy:
+          $ref: '#/components/schemas/UserStubDto'
+        updatedBy:
+          $ref: '#/components/schemas/UserStubDto'
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          
+    PostBulkDeleteResponseDto:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Số lượng bài viết đã được xóa.
+          example: 2
+
+    # ========== Generic API Response Wrappers ==========
+    ApiResponse_PostResponse:
+      type: object
+      properties:
+        statusCode: { type: integer, example: 201 }
+        timestamp: { type: string, format: date-time }
+        message: { type: string }
+        data:
+          $ref: '#/components/schemas/PostResponseDto'
+
+    ApiResponse_PaginatedPosts:
+      type: object
+      properties:
+        statusCode: { type: integer, example: 200 }
+        timestamp: { type: string, format: date-time }
+        message: { type: string }
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/PostResponseDto'
+            meta:
+              type: object
+              properties:
+                page: { type: integer }
+                limit: { type: integer }
+                total: { type: integer }
+                totalPages: { type: integer }
+                
+    ApiResponse_BulkDelete:
+      type: object
+      properties:
+        statusCode: { type: integer, example: 200 }
+        timestamp: { type: string, format: date-time }
+        message: { type: string }
+        data:
+          $ref: '#/components/schemas/PostBulkDeleteResponseDto'
+
+paths:
+  /v1/post:
+    post:
+      tags: [Posts]
+      summary: Tạo một bài viết mới
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostCreateDto'
+      responses:
+        '201':
+          description: Tạo bài viết thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_PostResponse'
+        '401':
+          description: Unauthorized
+
+    get:
+      tags: [Posts]
+      summary: Lấy danh sách các bài viết (phân trang)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 10 }
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: authorId
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Lấy danh sách thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_PaginatedPosts'
+        '401':
+          description: Unauthorized
+
+  /v1/post/{id}:
+    put:
+      tags: [Posts]
+      summary: Cập nhật một bài viết
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostUpdateDto'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_PostResponse'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Không tìm thấy bài viết
+
+  /v1/post/batch:
+    delete:
+      tags: [Posts]
+      summary: Xóa nhiều bài viết cùng lúc
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostBulkDeleteDto'
+      responses:
+        '200':
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_BulkDelete'
+        '401':
+          description: Unauthorized
