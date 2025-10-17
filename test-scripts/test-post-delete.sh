@@ -1,12 +1,16 @@
 #!/bin/bash
 
+# Load config
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/config.sh"
+
 # Test Delete Posts (Batch)
 # First login to get access token
 echo "========================================="
-echo "Step 1: Login to get access token"
+echo "Step 1: Login to get access token ($MODE mode)"
 echo "========================================="
 
-RESPONSE=$(curl -s -X POST http://localhost:8000/auth/v1/auth/login \
+RESPONSE=$(curl -s -X POST $KONG_URL/auth/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
@@ -27,7 +31,7 @@ echo "========================================="
 echo "Step 2: Get Posts List to find post IDs"
 echo "========================================="
 
-POSTS_RESPONSE=$(curl -s -X GET "http://localhost:8000/post/v1/post?page=1&limit=5" \
+POSTS_RESPONSE=$(curl -s -X GET "$KONG_URL/post/v1/post?page=1&limit=5" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $ACCESS_TOKEN")
 
@@ -46,7 +50,7 @@ echo "========================================="
 echo "Step 3: Batch Delete Posts"
 echo "========================================="
 
-curl -X DELETE "http://localhost:8000/post/v1/post/batch" \
+curl -X DELETE "$KONG_URL/post/v1/post/batch" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -d "{

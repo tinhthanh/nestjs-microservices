@@ -1,12 +1,16 @@
 #!/bin/bash
 
+# Load config
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/config.sh"
+
 # Test Refresh Token
 # First login to get refresh token
 echo "========================================="
-echo "Step 1: Login to get refresh token"
+echo "Step 1: Login to get refresh token ($MODE mode)"
 echo "========================================="
 
-RESPONSE=$(curl -s -X POST http://localhost:8000/auth/v1/auth/login \
+RESPONSE=$(curl -s -X POST $KONG_URL/auth/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
@@ -27,7 +31,7 @@ echo "========================================="
 echo "Step 2: Refresh Access Token"
 echo "========================================="
 
-curl -X GET http://localhost:8000/auth/v1/auth/refresh \
+curl -X GET $KONG_URL/auth/v1/auth/refresh \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $REFRESH_TOKEN" | jq .
 

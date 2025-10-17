@@ -1,12 +1,16 @@
 #!/bin/bash
 
+# Load config
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/config.sh"
+
 # Test Update User Profile
 # First login to get access token
 echo "========================================="
-echo "Step 1: Login to get access token"
+echo "Step 1: Login to get access token ($MODE mode)"
 echo "========================================="
 
-RESPONSE=$(curl -s -X POST http://localhost:8000/auth/v1/auth/login \
+RESPONSE=$(curl -s -X POST $KONG_URL/auth/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
@@ -27,7 +31,7 @@ echo "========================================="
 echo "Step 2: Update User Profile"
 echo "========================================="
 
-curl -X PUT http://localhost:8000/auth/v1/user/profile \
+curl -X PUT $KONG_URL/auth/v1/user/profile \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -d '{
