@@ -29,7 +29,7 @@ Kiến trúc microservices sẵn sàng cho production, xây dựng với NestJS,
 
 4.  **Kiểm tra nhanh:**
     ```bash
-    ./scripts/quick-test.sh
+    ./test-scripts/quick-test.sh
     ```
 
 ---
