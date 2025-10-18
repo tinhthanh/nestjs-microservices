@@ -5,9 +5,7 @@ services:
     container_name: bw-kong
     restart: unless-stopped
     ports:
-      - "8000:8000"    # HTTP API
-      - "8443:8443"    # HTTPS API
-      - "8001:8001"    # Admin API
+      - "8000:8000"    # Chỉ cổng này được mở ra ngoài
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
@@ -37,9 +35,6 @@ services:
       dockerfile: Dockerfile
     container_name: bw-auth-service
     restart: unless-stopped
-    ports:
-      - "9001:9001"    # HTTP API
-      - "50051:50051"  # gRPC
     env_file:
       - ./auth/.env.docker
     depends_on:
@@ -63,9 +58,6 @@ services:
       dockerfile: Dockerfile
     container_name: bw-post-service
     restart: unless-stopped
-    ports:
-      - "9002:9002"    # HTTP API
-      - "50052:50052"  # gRPC
     env_file:
       - ./post/.env.docker
     depends_on:
@@ -110,8 +102,6 @@ services:
     image: redis:7-alpine
     container_name: bw-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
