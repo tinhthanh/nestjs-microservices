@@ -20,43 +20,50 @@ Dự án này là một hệ thống backend được xây dựng theo mô hình
 
 ---
 
-### 🚀 Bắt đầu Nhanh (5 phút)
+### 🚀 Bắt đầu Nhanh
 
 #### Yêu cầu:
 *   Docker & Docker Compose
-*   Node.js >= 18.0
-*   `jq` (cài đặt qua `brew install jq` hoặc `apt-get install jq`)
+*   Node.js >= 18.0 (chỉ cho development)
 
-#### Các bước thực hiện:
+#### Development Mode (Local Services + Docker Infrastructure)
 
-1.  **Khởi chạy tất cả services:**
-    ```bash
-    docker-compose up -d --build
-    ```
+```bash
+# Start development environment
+./dev.sh
 
-2.  **Chạy database migrations tập trung:**
-    ```bash
-    # Chạy lệnh này từ thư mục gốc của dự án
-    cd migrations
-    npm run migrate:deploy:prod
-    cd ..
-    ```
+# Services sẽ chạy:
+# - Auth Service: http://localhost:3001
+# - Post Service: http://localhost:3002
+# - Kong Gateway: http://localhost:8000
+# - PostgreSQL, Redis trong Docker
 
-3.  **Seed dữ liệu Firebase config:**
-    ```bash
-    # Lệnh này sẽ thêm cấu hình partner 'vetgo-ai-01' vào database
-    docker-compose exec auth-service npx ts-node prisma/seed-firebase.ts
-    ```
+# Stop development environment
+./dev-stop.sh
+```
 
-4.  **Kiểm tra toàn bộ hệ thống:**
-    ```bash
-    # Cấp quyền thực thi cho các script
-    chmod +x test-scripts/*.sh
+#### Production Mode (All in Docker)
 
-    # Chạy script xác minh toàn diện
-    ./test-scripts/verify-all.sh
-    ```
-    Nếu tất cả các mục đều `✅ PASSED`, hệ thống của bạn đã sẵn sàng!
+```bash
+# Start production environment
+./prod.sh
+
+# Chỉ expose port 8000 (Kong Gateway)
+# Tất cả services khác chạy internal trong Docker network
+
+# Stop production environment
+docker-compose -f docker-compose.yml down
+```
+
+#### Kiểm tra hệ thống
+
+```bash
+# Run all tests
+./run-all-tests.sh
+
+# Test API endpoints
+./test-scripts/test-partner-verify.sh
+```
 
 ---
 
