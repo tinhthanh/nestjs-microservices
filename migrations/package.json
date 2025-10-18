@@ -1,0 +1,23 @@
+{
+  "name": "@backendworks/migrations",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Centralized database migrations for all services",
+  "scripts": {
+    "migrate:dev": "dotenv -e .env.local -- prisma migrate dev",
+    "migrate:deploy": "dotenv -e .env.local -- prisma migrate deploy",
+    "migrate:deploy:prod": "dotenv -e .env.docker -- prisma migrate deploy",
+    "migrate:status": "dotenv -e .env.local -- prisma migrate status",
+    "migrate:reset": "dotenv -e .env.local -- prisma migrate reset",
+    "generate": "dotenv -e .env.local -- prisma generate",
+    "studio": "dotenv -e .env.local -- prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.21.1"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^8.0.0",
+    "prisma": "^5.21.1"
+  }
+}
+

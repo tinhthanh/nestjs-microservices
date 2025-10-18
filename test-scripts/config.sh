@@ -27,6 +27,7 @@ fi
 
 # Kong is always on 8000
 export KONG_URL="http://localhost:8000"
+export BASE_URL="http://localhost:8000"
 
 # Display detected mode
 if [ "$SHOW_MODE" = "true" ]; then
