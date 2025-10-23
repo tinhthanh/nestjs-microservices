@@ -2,7 +2,7 @@
 
 # Load config
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/config.sh"
+source "$SCRIPT_DIR/../../common/config.sh"
 
 # Test Refresh Token
 # First login to get refresh token
@@ -28,10 +28,10 @@ fi
 
 echo ""
 echo "========================================="
-echo "Step 2: Refresh Access Token"
+echo "Step 2: Use Refresh Token to get new Access Token"
 echo "========================================="
 
-curl -X GET $KONG_URL/auth/v1/auth/refresh \
+curl -s --max-time 10 -X GET $KONG_URL/auth/v1/auth/refresh \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $REFRESH_TOKEN" | jq .
 

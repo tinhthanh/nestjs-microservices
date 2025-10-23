@@ -2,9 +2,9 @@
 
 # Load config
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/config.sh"
+source "$SCRIPT_DIR/../../common/config.sh"
 
-# Test Create Post
+# Test Update User Profile
 # First login to get access token
 echo "========================================="
 echo "Step 1: Login to get access token ($MODE mode)"
@@ -28,15 +28,15 @@ fi
 
 echo ""
 echo "========================================="
-echo "Step 2: Create New Post"
+echo "Step 2: Update User Profile"
 echo "========================================="
 
-curl -X POST $KONG_URL/post/v1/post \
+curl -X PUT $KONG_URL/auth/v1/user/profile \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -d '{
-    "title": "My First Post",
-    "content": "This is the content of my first post. It contains some interesting information."
+    "firstName": "Updated",
+    "lastName": "Name"
   }' | jq .
 
 echo ""

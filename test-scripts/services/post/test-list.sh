@@ -2,7 +2,7 @@
 
 # Load config
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/config.sh"
+source "$SCRIPT_DIR/../../common/config.sh"
 
 # Test Get Posts List
 # First login to get access token
@@ -28,7 +28,7 @@ fi
 
 echo ""
 echo "========================================="
-echo "Step 2: Get Posts List (with pagination)"
+echo "Step 2: Get Posts List"
 echo "========================================="
 
 curl -X GET "$KONG_URL/post/v1/post?page=1&limit=10" \

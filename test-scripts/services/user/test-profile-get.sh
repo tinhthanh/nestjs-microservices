@@ -2,9 +2,9 @@
 
 # Load config
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/config.sh"
+source "$SCRIPT_DIR/../../common/config.sh"
 
-# Test Update User Profile
+# Test Get User Profile
 # First login to get access token
 echo "========================================="
 echo "Step 1: Login to get access token ($MODE mode)"
@@ -28,15 +28,12 @@ fi
 
 echo ""
 echo "========================================="
-echo "Step 2: Update User Profile"
+echo "Step 2: Get User Profile"
 echo "========================================="
 
-curl -X PUT $KONG_URL/auth/v1/user/profile \
+curl -X GET $KONG_URL/auth/v1/user/profile \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $ACCESS_TOKEN" \
-  -d '{
-    "name": "Updated User Name"
-  }' | jq .
+  -H "Authorization: Bearer $ACCESS_TOKEN" | jq .
 
 echo ""
 

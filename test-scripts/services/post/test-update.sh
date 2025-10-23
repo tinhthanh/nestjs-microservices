@@ -2,9 +2,9 @@
 
 # Load config
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/config.sh"
+source "$SCRIPT_DIR/../../common/config.sh"
 
-# Test Delete Posts (Batch)
+# Test Update Post
 # First login to get access token
 echo "========================================="
 echo "Step 1: Login to get access token ($MODE mode)"
@@ -28,34 +28,34 @@ fi
 
 echo ""
 echo "========================================="
-echo "Step 2: Get Posts List to find post IDs"
+echo "Step 2: Get Posts List to find a post ID"
 echo "========================================="
 
-POSTS_RESPONSE=$(curl -s -X GET "$KONG_URL/post/v1/post?page=1&limit=5" \
+POSTS_RESPONSE=$(curl -s -X GET "$KONG_URL/post/v1/post?page=1&limit=1" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $ACCESS_TOKEN")
 
 echo "$POSTS_RESPONSE" | jq .
 
-# Extract post IDs (get first 2 posts)
-POST_IDS=$(echo "$POSTS_RESPONSE" | jq -r '.data.items[0:2] | map(.id) | @json')
+POST_ID=$(echo "$POSTS_RESPONSE" | jq -r '.data.items[0].id')
 
-if [ "$POST_IDS" == "null" ] || [ "$POST_IDS" == "[]" ]; then
-  echo "No posts found. Please create posts first using test-post-create.sh"
+if [ "$POST_ID" == "null" ] || [ -z "$POST_ID" ]; then
+  echo "No posts found. Please create a post first using test-post-create.sh"
   exit 1
 fi
 
 echo ""
 echo "========================================="
-echo "Step 3: Batch Delete Posts"
+echo "Step 3: Update Post with ID: $POST_ID"
 echo "========================================="
 
-curl -X DELETE "$KONG_URL/post/v1/post/batch" \
+curl -X PUT "$KONG_URL/post/v1/post/$POST_ID" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
-  -d "{
-    \"ids\": $POST_IDS
-  }" | jq .
+  -d '{
+    "title": "Updated Post Title",
+    "content": "This is the updated content of the post."
+  }' | jq .
 
 echo ""
 
