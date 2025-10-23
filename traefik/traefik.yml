@@ -1,0 +1,49 @@
+# Traefik Static Configuration for Production
+# Replaces Kong API Gateway
+
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+# API and Dashboard
+api:
+  dashboard: false
+  insecure: false
+
+# Ping endpoint for healthcheck
+ping:
+  entryPoint: "web"
+
+# Entry Points
+entryPoints:
+  web:
+    address: ":8000"
+    http:
+      middlewares:
+        - global-rate-limit@file
+
+# Providers
+providers:
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+
+# Logging
+log:
+  level: INFO
+  format: json
+
+# Access Logs
+accessLog:
+  format: json
+  fields:
+    defaultMode: keep
+    headers:
+      defaultMode: keep
+
+# Metrics (optional)
+metrics:
+  prometheus:
+    addEntryPointsLabels: true
+    addServicesLabels: true
+

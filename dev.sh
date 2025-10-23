@@ -36,8 +36,8 @@ fi
 echo -e "${GREEN}✓ Prerequisites OK${NC}"
 echo ""
 
-# Start infrastructure (PostgreSQL, Redis, Kong)
-echo "🐳 Starting infrastructure (PostgreSQL, Redis, Kong)..."
+# Start infrastructure (PostgreSQL, Redis, Traefik)
+echo "🐳 Starting infrastructure (PostgreSQL, Redis, Traefik)..."
 docker-compose -f docker-compose.dev.yml up -d
 
 # Wait for services to be ready
@@ -63,9 +63,9 @@ else
     exit 1
 fi
 
-# Check Kong
-echo -n "Checking Kong... "
-if curl -s http://localhost:8001/status > /dev/null 2>&1; then
+# Check Traefik
+echo -n "Checking Traefik... "
+if curl -s http://localhost:8000/ping > /dev/null 2>&1; then
     echo -e "${GREEN}✓${NC}"
 else
     echo -e "${RED}✗${NC}"
@@ -146,12 +146,12 @@ echo "✅ Development Environment Ready!"
 echo "========================================="
 echo ""
 echo "📍 Services:"
-echo "  - Auth Service:  http://localhost:3001"
-echo "  - Post Service:  http://localhost:3002"
-echo "  - Kong Gateway:  http://localhost:8000"
-echo "  - Kong Admin:    http://localhost:8001"
-echo "  - PostgreSQL:    localhost:5435"
-echo "  - Redis:         localhost:6379"
+echo "  - Auth Service:     http://localhost:3001"
+echo "  - Post Service:     http://localhost:3002"
+echo "  - Traefik Gateway:  http://localhost:8000"
+echo "  - Traefik Dashboard: http://localhost:8080"
+echo "  - PostgreSQL:       localhost:5435"
+echo "  - Redis:            localhost:6379"
 echo ""
 echo "📖 API Documentation:"
 echo "  - Auth Swagger:  http://localhost:3001/docs"

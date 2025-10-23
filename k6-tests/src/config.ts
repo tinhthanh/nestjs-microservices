@@ -5,25 +5,26 @@ export const config = {
   
   // Base URLs based on mode
   getBaseUrl(): string {
-    return this.mode === 'prod' 
-      ? 'http://kong:8000'  // In prod, all services behind Kong
-      : 'http://kong:8000'; // In dev, also use Kong
+    return this.mode === 'prod'
+      ? 'http://traefik:8000'  // In prod, all services behind Traefik
+      : 'http://traefik:8000'; // In dev, also use Traefik
   },
-  
+
   getAuthUrl(): string {
     return this.mode === 'prod'
-      ? 'http://kong:8000/auth'
+      ? 'http://traefik:8000/auth'
       : 'http://auth-service:9001'; // Direct access in dev
   },
-  
+
   getPostUrl(): string {
     return this.mode === 'prod'
-      ? 'http://kong:8000/post'
+      ? 'http://traefik:8000/post'
       : 'http://post-service:9002'; // Direct access in dev
   },
-  
+
   getKongUrl(): string {
-    return 'http://kong:8000';
+    // Keep method name for backward compatibility, but now returns Traefik URL
+    return 'http://traefik:8000';
   },
   
   // Test user credentials

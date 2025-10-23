@@ -9,12 +9,12 @@ MODE=${MODE:-dev}
 
 # Wait for services to be ready
 echo "⏳ Waiting for services to be ready..."
-KONG_URL="http://kong:8000"
+TRAEFIK_URL="http://traefik:8000"
 MAX_WAIT=60
 WAIT_COUNT=0
 
 while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
-  if wget -q -O- "${KONG_URL}/auth/health" > /dev/null 2>&1; then
+  if wget -q -O- "${TRAEFIK_URL}/auth/health" > /dev/null 2>&1; then
     echo "✅ Services are ready!"
     break
   fi

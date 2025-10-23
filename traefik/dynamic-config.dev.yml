@@ -1,0 +1,157 @@
+# Traefik Dynamic Configuration for Development
+# Services run on host machine (host.docker.internal)
+
+http:
+  # Middlewares
+  middlewares:
+    # Global rate limiting (default for all routes)
+    global-rate-limit:
+      rateLimit:
+        average: 300
+        period: 1m
+        burst: 50
+
+    # Auth service rate limiting
+    auth-rate-limit:
+      rateLimit:
+        average: 100
+        period: 1m
+        burst: 20
+
+    # Post service rate limiting
+    post-rate-limit:
+      rateLimit:
+        average: 200
+        period: 1m
+        burst: 40
+
+    # Partner routes rate limiting
+    partner-rate-limit:
+      rateLimit:
+        average: 50
+        period: 1m
+        burst: 10
+
+    # Strip /auth prefix
+    strip-auth-prefix:
+      stripPrefix:
+        prefixes:
+          - /auth
+
+    # Strip /post prefix
+    strip-post-prefix:
+      stripPrefix:
+        prefixes:
+          - /post
+
+    # Strip /files prefix
+    strip-files-prefix:
+      stripPrefix:
+        prefixes:
+          - /files
+
+    # JWT Authentication Middleware for DUFS
+    # Uses ForwardAuth to validate JWT tokens via auth service
+    jwt-auth:
+      forwardAuth:
+        address: "http://host.docker.internal:3001/v1/auth/verify-token"
+        authResponseHeaders:
+          - "X-User-Id"
+          - "X-User-Role"
+
+    # Headers middleware
+    security-headers:
+      headers:
+        customResponseHeaders:
+          X-Frame-Options: "DENY"
+          X-Content-Type-Options: "nosniff"
+          X-XSS-Protection: "1; mode=block"
+
+  # Services
+  services:
+    auth-service:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3001"
+        healthCheck:
+          path: /health
+          interval: 30s
+          timeout: 10s
+
+    post-service:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3002"
+        healthCheck:
+          path: /health
+          interval: 30s
+          timeout: 10s
+
+    dufs-service:
+      loadBalancer:
+        servers:
+          - url: "http://dufs-service:5000"
+        healthCheck:
+          path: /__dufs__/health
+          interval: 30s
+          timeout: 10s
+
+  # Routers
+  routers:
+    # Auth service routes - /auth/*
+    auth-routes:
+      rule: "PathPrefix(`/auth`)"
+      service: auth-service
+      entryPoints:
+        - web
+      middlewares:
+        - strip-auth-prefix
+        - auth-rate-limit
+        - security-headers
+      priority: 100
+
+    # Partner routes - /v1/partner/*
+    partner-routes:
+      rule: "PathPrefix(`/v1/partner`)"
+      service: auth-service
+      entryPoints:
+        - web
+      middlewares:
+        - partner-rate-limit
+        - security-headers
+      priority: 200
+
+    # User routes - /v1/user/*
+    user-routes:
+      rule: "PathPrefix(`/v1/user`)"
+      service: auth-service
+      entryPoints:
+        - web
+      middlewares:
+        - security-headers
+      priority: 150
+
+    # Post service routes - /post/*
+    post-routes:
+      rule: "PathPrefix(`/post`)"
+      service: post-service
+      entryPoints:
+        - web
+      middlewares:
+        - strip-post-prefix
+        - post-rate-limit
+        - security-headers
+      priority: 100
+
+    # DUFS file service routes - /files/* (with JWT auth)
+    dufs-routes:
+      rule: "PathPrefix(`/files`)"
+      service: dufs-service
+      entryPoints:
+        - web
+      middlewares:
+        - jwt-auth
+        - strip-files-prefix
+        - security-headers
+      priority: 100
+

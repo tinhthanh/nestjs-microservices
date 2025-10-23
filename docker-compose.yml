@@ -1,30 +1,22 @@
 services:
-  # Kong API Gateway
-  kong:
-    image: kong:latest
-    container_name: bw-kong
+  # Traefik API Gateway (replaces Kong)
+  traefik:
+    image: traefik:v3.0
+    container_name: bw-traefik
     restart: unless-stopped
     ports:
-      - "8000:8000"    # Chỉ cổng này được mở ra ngoài
-    environment:
-      KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
-      KONG_PROXY_ACCESS_LOG: /dev/stdout
-      KONG_ADMIN_ACCESS_LOG: /dev/stdout
-      KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: 0.0.0.0:8001
-      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      - "8000:8000"    # HTTP entrypoint - same as Kong
     volumes:
-      - ./kong/config.yml:/var/lib/kong/kong.yml:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic-config.yml:/etc/traefik/dynamic/config.yml:ro
     networks:
       - bw-network
     depends_on:
       - auth-service
       - post-service
-      - dufs-service # Thêm dòng này
+      - dufs-service
     healthcheck:
-      test: ["CMD", "kong", "health"]
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -145,7 +137,7 @@ services:
     networks:
       - bw-network
     depends_on:
-      - kong
+      - traefik
       - auth-service
       - post-service
     profiles:
