@@ -22,6 +22,7 @@ services:
     depends_on:
       - auth-service
       - post-service
+      - dufs-service # Thêm dòng này
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 30s
@@ -112,7 +113,26 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-
+  dufs-service:
+    image: sigoden/dufs:latest
+    container_name: bw-dufs-service
+    restart: unless-stopped
+    # Lệnh này yêu cầu dufs phục vụ thư mục /data bên trong container
+    # và cho phép mọi hành động (upload, delete) từ mạng nội bộ.
+    # Kong sẽ là người gác cổng, nên dufs không cần tự xác thực.
+    command: ["/data", "-p", "5000", "--allow-all"]
+    volumes:
+      - ./managed_files:/data  # Ánh xạ thư mục local vào container
+    networks:
+      - bw-network
+    # Chỉ expose port cho mạng nội bộ, không mở ra ngoài
+    expose:
+      - "5000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5000/__dufs__/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 networks:
   bw-network:
     driver: bridge

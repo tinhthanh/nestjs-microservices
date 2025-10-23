@@ -10,7 +10,8 @@
     "migrate:status": "dotenv -e .env.local -- prisma migrate status",
     "migrate:reset": "dotenv -e .env.local -- prisma migrate reset",
     "generate": "dotenv -e .env.local -- prisma generate",
-    "studio": "dotenv -e .env.local -- prisma studio"
+    "studio": "dotenv -e .env.local -- prisma studio",
+    "sync": "sh ./sync-schemas.sh"
   },
   "dependencies": {
     "@prisma/client": "^5.21.1"

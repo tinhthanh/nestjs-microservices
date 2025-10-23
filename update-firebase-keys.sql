@@ -1,6 +1,33 @@
-UPDATE third_party_integrations 
-SET 
-  private_key = '-----BEGIN PRIVATE KEY-----
+INSERT INTO public.third_party_integrations (
+  id, 
+  project_id, 
+  firebase_config, 
+  is_active, 
+  created_at, 
+  updated_at, 
+  deleted_at, 
+  client_email, 
+  private_key
+)
+VALUES (
+  'vetgo-ai-01',
+  'vetgo-ai-01',
+  '{
+    "apiKey": "AIzaSyB2TjO3fDU-Fhd9a52f3MdoKu5w1lF8dWQ",
+    "authDomain": "vetgo-ai-01.firebaseapp.com",
+    "databaseURL": "https://vetgo-ai-01-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "projectId": "vetgo-ai-01",
+    "storageBucket": "vetgo-ai-01.firebasestorage.app",
+    "messagingSenderId": "315854298993",
+    "appId": "1:315854298993:web:8abcf3714549c81a1b60d0",
+    "measurementId": "G-DZY2H8M9RH"
+  }',
+  true,
+  CURRENT_TIMESTAMP,
+  CURRENT_TIMESTAMP,
+  NULL,
+  'firebase-adminsdk-fbsvc@vetgo-ai-01.iam.gserviceaccount.com',
+  '-----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCu4XQA8SFCn6fZ
 BK+vHxsh72vJ0GiIV2FWft3v2BMNqX8zuEESztK/VGwTW2Tlw0x1e7mqQEUpOti/
 Lo3F2dhvw6vt117EqAdx+LuF5TQqaF0n4l+awFgMANS2XD5Sv6JB+BTn2OPaJA0K
@@ -27,7 +54,5 @@ uArNjILAj6V/4E1AUtS+cI9XGPIKK1z1hpgd2/1vgQKBgHps27FzbD4VQue81I/6
 qsCdhdtcKuqyGwmzoD0EVVUSaQNkIdiTIhf6f46+Z9gM11npWAaw7hbGQCcRmKpu
 x3tdY/n3I8uepBiMijodOvM0W7Q5DpaEfxa3xJwAn2PdsU4LDgQV8y/4ZkGCOdkH
 1QcOCgunEWjPHzoRxPhuUrJ9
------END PRIVATE KEY-----',
-  client_email = 'firebase-adminsdk-fbsvc@vetgo-ai-01.iam.gserviceaccount.com'
-WHERE project_id = 'vetgo-ai-01';
-
+-----END PRIVATE KEY-----'
+);

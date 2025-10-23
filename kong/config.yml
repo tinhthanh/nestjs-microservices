@@ -1,6 +1,19 @@
 _format_version: "3.0"
 _transform: true
 
+# 1. (Mới) Tạo một consumer đại diện cho người dùng của hệ thống
+consumers:
+  - username: system-user
+
+# 2. (Mới) Đăng ký JWT secret cho consumer trên
+# Kong sẽ dùng secret này để xác thực token
+jwt_secrets:
+  - consumer: system-user
+    key: "backend-works-app"
+    # Sửa lại thành tên biến đúng mà Docker Compose đã truyền vào
+    secret: "EAJYjNJUnRGJ6uq1YfGw4NG1pd1z102J"
+    algorithm: HS256
+    
 services:
   - name: auth-service
     url: http://auth-service:9001
@@ -61,7 +74,17 @@ services:
           - PUT
           - PATCH
           - DELETE
-
+    # 3. (Mới) Thêm dufs-service
+  - name: dufs-service
+    url: http://dufs-service:5000
+    routes:
+      - name: dufs-routes
+        paths:
+          - /files
+        strip_path: true # Xóa /files khỏi path trước khi gửi đến dufs
+        plugins:
+          # 4. (Mới) Áp dụng plugin JWT cho route này
+          - name: jwt        
 plugins:
   - name: rate-limiting
     route: auth-routes
