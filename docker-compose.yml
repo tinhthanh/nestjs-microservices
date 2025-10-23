@@ -133,6 +133,24 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  # k6 Load Testing Service
+  k6-tests:
+    build:
+      context: ./k6-tests
+      dockerfile: Dockerfile
+    container_name: bw-k6-tests-prod
+    environment:
+      MODE: prod
+    networks:
+      - bw-network
+    depends_on:
+      - kong
+      - auth-service
+      - post-service
+    profiles:
+      - test
+
 networks:
   bw-network:
     driver: bridge
