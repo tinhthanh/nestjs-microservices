@@ -10,7 +10,7 @@ export default function () {
   
   // Step 1: Login to get refresh token
   logStep('Step 1: Login to get refresh token');
-  const loginUrl = `${config.getKongUrl()}/auth/v1/auth/login`;
+  const loginUrl = `${config.getTraefikUrl()}/auth/v1/auth/login`;
   
   const loginPayload = JSON.stringify({
     email: config.testUser.email,
@@ -42,7 +42,7 @@ export default function () {
   
   // Step 2: Use refresh token to get new access token
   logStep('Step 2: Use refresh token to get new access token');
-  const refreshUrl = `${config.getKongUrl()}/auth/v1/auth/refresh`;
+  const refreshUrl = `${config.getTraefikUrl()}/auth/v1/auth/refresh`;
   
   const refreshParams = {
     headers: {

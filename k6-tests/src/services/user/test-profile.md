@@ -5,22 +5,22 @@
 ```mermaid
 sequenceDiagram
     participant K6 as k6 Test
-    participant Kong as Kong Gateway
+    participant Traefik as Traefik Gateway
     participant Auth as Auth Service
     participant DB as PostgreSQL
 
-    K6->>Kong: POST /auth/v1/auth/login
-    Kong->>Auth: Forward request
+    K6->>Traefik: POST /auth/v1/auth/login
+    Traefik->>Auth: Forward request
     Auth-->>K6: {accessToken}
     
-    K6->>Kong: GET /auth/v1/user/profile
+    K6->>Traefik: GET /auth/v1/user/profile
     Note over K6: Authorization: Bearer {accessToken}
-    Kong->>Auth: Forward request
+    Traefik->>Auth: Forward request
     Auth->>Auth: Verify JWT token
     Auth->>DB: Get user by ID
     DB-->>Auth: User data
-    Auth-->>Kong: 200 + {user}
-    Kong-->>K6: Return response
+    Auth-->>Traefik: 200 + {user}
+    Traefik-->>K6: Return response
 ```
 
 ## Test Steps

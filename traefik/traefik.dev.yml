@@ -1,5 +1,5 @@
 # Traefik Static Configuration for Development
-# Replaces Kong API Gateway
+# Replaces Traefik API Gateway
 
 global:
   checkNewVersion: false

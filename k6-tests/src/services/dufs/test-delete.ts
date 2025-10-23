@@ -10,7 +10,7 @@ export default function () {
   
   // Step 1: Login to get access token
   logStep('Step 1: Login to get access token');
-  const loginUrl = `${config.getKongUrl()}/auth/v1/auth/login`;
+  const loginUrl = `${config.getTraefikUrl()}/auth/v1/auth/login`;
   
   const loginPayload = JSON.stringify({
     email: config.testUser.email,
@@ -44,7 +44,7 @@ export default function () {
   logStep('Step 2: Upload a file to delete');
   const timestamp = Date.now();
   const filename = `test-delete-${timestamp}.txt`;
-  const uploadUrl = `${config.getKongUrl()}/files/${filename}`;
+  const uploadUrl = `${config.getTraefikUrl()}/files/${filename}`;
   
   const fileContent = 'This file will be deleted';
   
@@ -66,7 +66,7 @@ export default function () {
   
   // Step 3: Delete the file
   logStep('Step 3: Delete the file');
-  const deleteUrl = `${config.getKongUrl()}/files/${filename}`;
+  const deleteUrl = `${config.getTraefikUrl()}/files/${filename}`;
   
   const deleteParams = {
     headers: {

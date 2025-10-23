@@ -22,7 +22,7 @@ export const config = {
       : 'http://post-service:9002'; // Direct access in dev
   },
 
-  getKongUrl(): string {
+  getTraefikUrl(): string {
     // Keep method name for backward compatibility, but now returns Traefik URL
     return 'http://traefik:8000';
   },

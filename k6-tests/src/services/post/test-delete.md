@@ -5,26 +5,26 @@
 ```mermaid
 sequenceDiagram
     participant K6 as k6 Test
-    participant Kong as Kong Gateway
+    participant Traefik as Traefik Gateway
     participant Post as Post Service
     participant Auth as Auth Service (gRPC)
     participant DB as PostgreSQL
 
     Note over K6: Create post first
-    K6->>Kong: POST /post/v1/post
-    Kong->>Post: Forward request
+    K6->>Traefik: POST /post/v1/post
+    Traefik->>Post: Forward request
     Post-->>K6: {postId}
     
-    K6->>Kong: DELETE /post/v1/post/batch
+    K6->>Traefik: DELETE /post/v1/post/batch
     Note over K6: Authorization: Bearer {accessToken}
     Note over K6: {ids: [postId]}
-    Kong->>Post: Forward request
+    Traefik->>Post: Forward request
     Post->>Auth: ValidateToken (gRPC)
     Auth-->>Post: {userId, role}
     Post->>DB: Soft delete posts
     DB-->>Post: Deleted count
-    Post-->>Kong: 200 + {count}
-    Kong-->>K6: Return response
+    Post-->>Traefik: 200 + {count}
+    Traefik-->>K6: Return response
 ```
 
 ## Test Steps

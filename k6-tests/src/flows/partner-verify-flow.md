@@ -6,7 +6,7 @@
 sequenceDiagram
     participant K6 as k6 Test
     participant Firebase as Firebase Auth
-    participant Kong as Kong Gateway
+    participant Traefik as Traefik Gateway
     participant Auth as Auth Service
     participant DB as PostgreSQL
 
@@ -15,14 +15,14 @@ sequenceDiagram
     Firebase-->>K6: {firebaseIdToken}
     
     Note over K6: Step 2: Verify Partner
-    K6->>Kong: GET /auth/v1/partner/verify
+    K6->>Traefik: GET /auth/v1/partner/verify
     Note over K6: Authorization: Bearer {firebaseIdToken}
-    Kong->>Auth: Forward request
+    Traefik->>Auth: Forward request
     Auth->>Auth: Verify Firebase token
     Auth->>DB: Find/Create partner user
     Auth->>Auth: Generate JWT tokens
-    Auth-->>Kong: 200 + {accessToken, refreshToken, user}
-    Kong-->>K6: Return response
+    Auth-->>Traefik: 200 + {accessToken, refreshToken, user}
+    Traefik-->>K6: Return response
 ```
 
 ## Test Steps

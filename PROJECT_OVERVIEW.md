@@ -16,10 +16,10 @@
 
 *   **Mô hình:** Microservices.
 *   **Giao tiếp:**
-    *   **Client -> Backend:** RESTful API qua Kong API Gateway.
+    *   **Client -> Backend:** RESTful API qua Traefik API Gateway.
     *   **Service <-> Service:** gRPC để tối ưu hiệu năng.
 *   **Các thành phần chính:**
-    1.  **Kong API Gateway:** Cổng vào duy nhất, xử lý routing, rate limiting, logging, và xác thực JWT cho các route yêu cầu.
+    1.  **Traefik API Gateway:** Cổng vào duy nhất, xử lý routing, rate limiting, logging, và xác thực JWT cho các route yêu cầu.
     2.  **Auth Service:** Quản lý mọi thứ liên quan đến người dùng: đăng ký, đăng nhập, JWT, phân quyền (roles), tích hợp Firebase.
     3.  **Post Service:** Quản lý các bài viết (CRUD), tìm kiếm, phân trang.
     4.  **Dufs Service:** Dịch vụ quản lý file chuyên dụng, xử lý upload, download, và lưu trữ file an toàn.
@@ -53,20 +53,20 @@
 ### 4. 🔄 Luồng Nghiệp vụ Chính
 
 #### Luồng Đăng ký và Tạo bài viết:
-1.  **Client** gửi request `POST /auth/signup` đến **Kong Gateway**.
-2.  **Kong** chuyển tiếp request đến **Auth Service**.
+1.  **Client** gửi request `POST /auth/signup` đến **Traefik Gateway**.
+2.  **Traefik** chuyển tiếp request đến **Auth Service**.
 3.  **Auth Service** tạo user trong **PostgreSQL** và trả về `accessToken` & `refreshToken`.
-4.  **Client** dùng `accessToken` gửi request `POST /post` đến **Kong Gateway**.
-5.  **Kong** chuyển tiếp đến **Post Service**.
+4.  **Client** dùng `accessToken` gửi request `POST /post` đến **Traefik Gateway**.
+5.  **Traefik** chuyển tiếp đến **Post Service**.
 6.  **Post Service** gọi đến gRPC `ValidateToken` của **Auth Service** để xác thực token.
 7.  **Auth Service** xác nhận token hợp lệ, trả về `userId`.
 8.  **Post Service** tạo bài viết trong **PostgreSQL** với `createdBy = userId`.
 
 #### Luồng Upload File:
 1.  **Client** đăng nhập và nhận `accessToken` từ **Auth Service**.
-2.  **Client** gửi request `PUT /files/{tên-file}` đến **Kong Gateway**, đính kèm `Authorization: Bearer <accessToken>` và nội dung file.
-3.  **Kong** sử dụng plugin **JWT** để xác thực `accessToken`. Token phải hợp lệ và có `key` (issuer) là `backend-works-app`.
-4.  Nếu token hợp lệ, **Kong** chuyển tiếp request đến **Dufs Service**.
+2.  **Client** gửi request `PUT /files/{tên-file}` đến **Traefik Gateway**, đính kèm `Authorization: Bearer <accessToken>` và nội dung file.
+3.  **Traefik** sử dụng plugin **JWT** để xác thực `accessToken`. Token phải hợp lệ và có `key` (issuer) là `backend-works-app`.
+4.  Nếu token hợp lệ, **Traefik** chuyển tiếp request đến **Dufs Service**.
 5.  **Dufs Service** lưu file vào thư mục `managed_files` trên server.
 
 ---
@@ -77,7 +77,7 @@
 *   **Giao tiếp:** RESTful API, gRPC
 *   **Database:** PostgreSQL (với Prisma ORM)
 *   **Cache:** Redis
-*   **API Gateway:** Kong
+*   **API Gateway:** Traefik
 *   **File Server:** Dufs
 *   **Containerization:** Docker, Docker Compose
 

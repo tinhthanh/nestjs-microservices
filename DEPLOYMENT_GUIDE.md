@@ -65,7 +65,7 @@ Tài liệu này mô tả quy trình chuẩn để triển khai hệ thống Nes
 1.  **Kiểm tra trạng thái các services:**
     ```bash
     docker-compose ps
-    # Đảm bảo tất cả services (auth, post, dufs, kong, postgres, redis) đều "Up" và "healthy"
+    # Đảm bảo tất cả services (auth, post, dufs, traefik, postgres, redis) đều "Up" và "healthy"
     ```
 
 2.  **Chạy script kiểm tra toàn diện:**

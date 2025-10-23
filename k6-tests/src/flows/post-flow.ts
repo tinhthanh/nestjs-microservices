@@ -12,7 +12,7 @@ export default function () {
   
   // Step 1: Login
   logStep('Step 1: Login to get access token');
-  const loginUrl = `${config.getKongUrl()}/auth/v1/auth/login`;
+  const loginUrl = `${config.getTraefikUrl()}/auth/v1/auth/login`;
   
   const loginPayload = JSON.stringify({
     email: config.testUser.email,
@@ -44,7 +44,7 @@ export default function () {
   
   // Step 2: Create post
   logStep('Step 2: Create post');
-  const createUrl = `${config.getKongUrl()}/post/v1/post`;
+  const createUrl = `${config.getTraefikUrl()}/post/v1/post`;
   
   const createPayload = JSON.stringify({
     title: 'Test Post from Flow',
@@ -77,7 +77,7 @@ export default function () {
   
   // Step 3: List posts
   logStep('Step 3: List posts');
-  const listUrl = `${config.getKongUrl()}/post/v1/post?page=1&limit=10`;
+  const listUrl = `${config.getTraefikUrl()}/post/v1/post?page=1&limit=10`;
   
   const listResponse = http.get(listUrl, authParams);
   
@@ -98,7 +98,7 @@ export default function () {
   
   // Step 4: Update post
   logStep('Step 4: Update post');
-  const updateUrl = `${config.getKongUrl()}/post/v1/post/${postId}`;
+  const updateUrl = `${config.getTraefikUrl()}/post/v1/post/${postId}`;
   
   const updatePayload = JSON.stringify({
     title: 'Updated Test Post',
@@ -116,7 +116,7 @@ export default function () {
   
   // Step 5: Delete post
   logStep('Step 5: Delete post');
-  const deleteUrl = `${config.getKongUrl()}/post/v1/post/batch`;
+  const deleteUrl = `${config.getTraefikUrl()}/post/v1/post/batch`;
   
   const deletePayload = JSON.stringify({
     ids: [postId],

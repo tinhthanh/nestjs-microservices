@@ -10,7 +10,7 @@ export default function () {
   
   // Step 1: Login
   logStep('Step 1: Login to get access token');
-  const loginUrl = `${config.getKongUrl()}/auth/v1/auth/login`;
+  const loginUrl = `${config.getTraefikUrl()}/auth/v1/auth/login`;
   
   const loginPayload = JSON.stringify({
     email: config.testUser.email,
@@ -42,7 +42,7 @@ export default function () {
   
   // Step 2: Create a post first
   logStep('Step 2: Create a post');
-  const createUrl = `${config.getKongUrl()}/post/v1/post`;
+  const createUrl = `${config.getTraefikUrl()}/post/v1/post`;
   
   const createPayload = JSON.stringify({
     title: 'Test Post for Deletion',
@@ -75,7 +75,7 @@ export default function () {
   
   // Step 3: Delete the post
   logStep('Step 3: Delete the post');
-  const deleteUrl = `${config.getKongUrl()}/post/v1/post/batch`;
+  const deleteUrl = `${config.getTraefikUrl()}/post/v1/post/batch`;
   
   const deletePayload = JSON.stringify({
     ids: [postId],

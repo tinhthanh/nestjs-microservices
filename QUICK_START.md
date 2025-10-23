@@ -11,7 +11,7 @@
 **Chạy gì:**
 - ✅ PostgreSQL trong Docker (port 5435)
 - ✅ Redis trong Docker (port 6379)
-- ✅ Kong Gateway trong Docker (port 8000, 8001)
+- ✅ Traefik Gateway trong Docker (port 8000, 8001)
 - ✅ Auth Service chạy local (port 3001)
 - ✅ Post Service chạy local (port 3002)
 
@@ -36,7 +36,7 @@
 
 **Chạy gì:**
 - ✅ Tất cả services trong Docker
-- ✅ Chỉ expose port 8000 (Kong Gateway)
+- ✅ Chỉ expose port 8000 (Traefik Gateway)
 - ✅ Tất cả services khác chạy internal
 
 **Dừng:**
@@ -58,8 +58,8 @@ docker-compose -f docker-compose.yml down
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| Kong Gateway | http://localhost:8000 | API Gateway (public) |
-| Kong Admin | http://localhost:8001 | Kong Admin API |
+| Traefik Gateway | http://localhost:8000 | API Gateway (public) |
+| Traefik Admin | http://localhost:8001 | Traefik Admin API |
 | Auth Service | http://localhost:3001 | Auth Service (direct) |
 | Post Service | http://localhost:3002 | Post Service (direct) |
 | Auth Swagger | http://localhost:3001/docs | API Documentation |
@@ -71,7 +71,7 @@ docker-compose -f docker-compose.yml down
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| Kong Gateway | http://localhost:8000 | **ONLY PUBLIC ENDPOINT** |
+| Traefik Gateway | http://localhost:8000 | **ONLY PUBLIC ENDPOINT** |
 
 Tất cả services khác chạy internal trong Docker network.
 
@@ -114,8 +114,8 @@ tail -f logs/auth.log
 # Post service logs
 tail -f logs/post.log
 
-# Kong logs
-docker logs -f bw-kong-dev
+# Traefik logs
+docker logs -f bw-traefik-dev
 ```
 
 ### Production Mode
@@ -127,7 +127,7 @@ docker-compose -f docker-compose.yml logs -f
 # Specific service
 docker-compose -f docker-compose.yml logs -f auth
 docker-compose -f docker-compose.yml logs -f post
-docker-compose -f docker-compose.yml logs -f kong
+docker-compose -f docker-compose.yml logs -f traefik
 ```
 
 ---
@@ -153,7 +153,7 @@ docker-compose -f docker-compose.dev.yml down -v
 # Check what's using ports
 lsof -ti:3001  # Auth
 lsof -ti:3002  # Post
-lsof -ti:8000  # Kong
+lsof -ti:8000  # Traefik
 lsof -ti:5435  # PostgreSQL
 
 # Kill process

@@ -19,7 +19,7 @@ setup: ## Initial setup - install dependencies and prepare environment
 	@echo "$(CYAN)Running initial setup...$(NC)"
 	@chmod +x dev-setup.sh && ./dev-setup.sh
 
-dev-start: ## Start development infrastructure (PostgreSQL, Redis, Kong)
+dev-start: ## Start development infrastructure (PostgreSQL, Redis, Traefik)
 	@echo "$(CYAN)Starting development infrastructure...$(NC)"
 	@chmod +x dev-start.sh && ./dev-start.sh
 
@@ -140,7 +140,7 @@ status: ## Show status of all services
 	@echo "$(GREEN)Service Health:$(NC)"
 	@echo -n "  PostgreSQL: "; curl -s http://localhost:5435 > /dev/null 2>&1 && echo "$(GREEN)✅$(NC)" || echo "$(YELLOW)❌$(NC)"
 	@echo -n "  Redis: "; docker-compose -f docker-compose.dev.yml exec -T redis redis-cli ping > /dev/null 2>&1 && echo "$(GREEN)✅$(NC)" || echo "$(YELLOW)❌$(NC)"
-	@echo -n "  Kong: "; curl -s http://localhost:8001 > /dev/null 2>&1 && echo "$(GREEN)✅$(NC)" || echo "$(YELLOW)❌$(NC)"
+	@echo -n "  Traefik: "; curl -s http://localhost:8001 > /dev/null 2>&1 && echo "$(GREEN)✅$(NC)" || echo "$(YELLOW)❌$(NC)"
 	@echo -n "  Auth Service: "; curl -s http://localhost:3001/health > /dev/null 2>&1 && echo "$(GREEN)✅$(NC)" || echo "$(YELLOW)❌$(NC)"
 	@echo -n "  Post Service: "; curl -s http://localhost:3002/health > /dev/null 2>&1 && echo "$(GREEN)✅$(NC)" || echo "$(YELLOW)❌$(NC)"
 	@echo ""

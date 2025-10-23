@@ -5,25 +5,25 @@
 ```mermaid
 sequenceDiagram
     participant K6 as k6 Test
-    participant Kong as Kong Gateway
+    participant Traefik as Traefik Gateway
     participant Auth as Auth Service
     participant Redis as Redis Cache
 
     Note over K6: Step 1: Login
-    K6->>Kong: POST /auth/v1/auth/login
-    Kong->>Auth: Forward request
+    K6->>Traefik: POST /auth/v1/auth/login
+    Traefik->>Auth: Forward request
     Auth-->>K6: {accessToken, refreshToken}
     
     Note over K6: Step 2: Refresh Token
-    K6->>Kong: GET /auth/v1/auth/refresh
+    K6->>Traefik: GET /auth/v1/auth/refresh
     Note over K6: Authorization: Bearer {refreshToken}
-    Kong->>Auth: Forward request
+    Traefik->>Auth: Forward request
     Auth->>Redis: Verify refresh token
     Redis-->>Auth: Token valid
     Auth->>Auth: Generate new tokens
     Auth->>Redis: Cache new refresh token
-    Auth-->>Kong: 200 + {accessToken, refreshToken}
-    Kong-->>K6: Return response
+    Auth-->>Traefik: 200 + {accessToken, refreshToken}
+    Traefik-->>K6: Return response
     
     Note over K6: Verify status 200
     Note over K6: Verify new tokens exist

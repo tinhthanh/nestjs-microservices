@@ -5,21 +5,21 @@
 ```mermaid
 sequenceDiagram
     participant K6 as k6 Test
-    participant Kong as Kong Gateway
+    participant Traefik as Traefik Gateway
     participant Auth as Auth Service
     participant DB as PostgreSQL
     participant Redis as Redis Cache
 
-    K6->>Kong: POST /auth/v1/auth/login
+    K6->>Traefik: POST /auth/v1/auth/login
     Note over K6: {email, password}
-    Kong->>Auth: Forward request
+    Traefik->>Auth: Forward request
     Auth->>DB: Find user by email
     DB-->>Auth: User data
     Auth->>Auth: Verify password
     Auth->>Auth: Generate JWT tokens
     Auth->>Redis: Cache refresh token
-    Auth-->>Kong: 201 + {accessToken, refreshToken, user}
-    Kong-->>K6: Return response
+    Auth-->>Traefik: 201 + {accessToken, refreshToken, user}
+    Traefik-->>K6: Return response
     
     Note over K6: Verify status 201
     Note over K6: Verify tokens exist

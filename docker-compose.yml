@@ -1,11 +1,11 @@
 services:
-  # Traefik API Gateway (replaces Kong)
+  # Traefik API Gateway (replaces Traefik)
   traefik:
     image: traefik:v3.0
     container_name: bw-traefik
     restart: unless-stopped
     ports:
-      - "8000:8000"    # HTTP entrypoint - same as Kong
+      - "8000:8000"    # HTTP entrypoint - same as Traefik
     volumes:
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./traefik/dynamic-config.yml:/etc/traefik/dynamic/config.yml:ro
@@ -111,7 +111,7 @@ services:
     restart: unless-stopped
     # Lệnh này yêu cầu dufs phục vụ thư mục /data bên trong container
     # và cho phép mọi hành động (upload, delete) từ mạng nội bộ.
-    # Kong sẽ là người gác cổng, nên dufs không cần tự xác thực.
+    # Traefik sẽ là người gác cổng, nên dufs không cần tự xác thực.
     command: ["/data", "-p", "5000", "--allow-all"]
     volumes:
       - ./managed_files:/data  # Ánh xạ thư mục local vào container

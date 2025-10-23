@@ -12,7 +12,7 @@ export default function () {
   
   // Step 1: Login
   logStep('Step 1: Login to get access token');
-  const loginUrl = `${config.getKongUrl()}/auth/v1/auth/login`;
+  const loginUrl = `${config.getTraefikUrl()}/auth/v1/auth/login`;
   
   const loginPayload = JSON.stringify({
     email: config.testUser.email,
@@ -46,7 +46,7 @@ export default function () {
   logStep('Step 2: Upload file');
   const timestamp = Date.now();
   const filename = `test-flow-${timestamp}.txt`;
-  const uploadUrl = `${config.getKongUrl()}/files/${filename}`;
+  const uploadUrl = `${config.getTraefikUrl()}/files/${filename}`;
   
   const fileContent = `Test file from flow at ${new Date().toISOString()}`;
   
@@ -68,7 +68,7 @@ export default function () {
   
   // Step 3: List files
   logStep('Step 3: List files');
-  const listUrl = `${config.getKongUrl()}/files/`;
+  const listUrl = `${config.getTraefikUrl()}/files/`;
   
   const listParams = {
     headers: {
@@ -87,7 +87,7 @@ export default function () {
   
   // Step 4: Download file
   logStep('Step 4: Download file');
-  const downloadUrl = `${config.getKongUrl()}/files/${filename}`;
+  const downloadUrl = `${config.getTraefikUrl()}/files/${filename}`;
   
   const downloadResponse = http.get(downloadUrl, listParams);
   
@@ -100,7 +100,7 @@ export default function () {
   
   // Step 5: Delete file
   logStep('Step 5: Delete file');
-  const deleteUrl = `${config.getKongUrl()}/files/${filename}`;
+  const deleteUrl = `${config.getTraefikUrl()}/files/${filename}`;
   
   const deleteResponse = http.del(deleteUrl, null, listParams);
   

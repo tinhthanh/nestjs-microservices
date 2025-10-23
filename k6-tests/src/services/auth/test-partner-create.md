@@ -5,24 +5,24 @@
 ```mermaid
 sequenceDiagram
     participant K6 as k6 Test
-    participant Kong as Kong Gateway
+    participant Traefik as Traefik Gateway
     participant Auth as Auth Service
     participant DB as PostgreSQL
 
     Note over K6: Requires Admin User
-    K6->>Kong: POST /auth/v1/auth/login (admin)
-    Kong->>Auth: Forward request
+    K6->>Traefik: POST /auth/v1/auth/login (admin)
+    Traefik->>Auth: Forward request
     Auth-->>K6: {accessToken (admin)}
     
-    K6->>Kong: POST /auth/v1/partner/create
+    K6->>Traefik: POST /auth/v1/partner/create
     Note over K6: Authorization: Bearer {adminToken}
     Note over K6: {firebaseUid, email, ...}
-    Kong->>Auth: Forward request
+    Traefik->>Auth: Forward request
     Auth->>Auth: Verify admin role
     Auth->>DB: Create partner user
     DB-->>Auth: Partner created
-    Auth-->>Kong: 201 + {partner}
-    Kong-->>K6: Return response
+    Auth-->>Traefik: 201 + {partner}
+    Traefik-->>K6: Return response
 ```
 
 ## Test Steps

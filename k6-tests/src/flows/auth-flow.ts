@@ -12,7 +12,7 @@ export default function () {
   
   // Step 1: Signup
   logStep('Step 1: User signup');
-  const signupUrl = `${config.getKongUrl()}/auth/v1/auth/signup`;
+  const signupUrl = `${config.getTraefikUrl()}/auth/v1/auth/signup`;
   const email = generateTestEmail();
   
   const signupPayload = JSON.stringify({
@@ -47,7 +47,7 @@ export default function () {
   
   // Step 2: Verify access token by getting profile
   logStep('Step 2: Verify access token');
-  const profileUrl = `${config.getKongUrl()}/auth/v1/user/profile`;
+  const profileUrl = `${config.getTraefikUrl()}/auth/v1/user/profile`;
   
   const profileParams = {
     headers: {
@@ -67,7 +67,7 @@ export default function () {
   
   // Step 3: Login with the new user
   logStep('Step 3: Login with new user');
-  const loginUrl = `${config.getKongUrl()}/auth/v1/auth/login`;
+  const loginUrl = `${config.getTraefikUrl()}/auth/v1/auth/login`;
   
   const loginPayload = JSON.stringify({
     email: email,
@@ -93,7 +93,7 @@ export default function () {
   
   // Step 4: Refresh token
   logStep('Step 4: Refresh access token');
-  const refreshUrl = `${config.getKongUrl()}/auth/v1/auth/refresh`;
+  const refreshUrl = `${config.getTraefikUrl()}/auth/v1/auth/refresh`;
   
   const refreshParams = {
     headers: {

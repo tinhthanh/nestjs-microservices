@@ -1,6 +1,6 @@
 # NestJS Microservices Architecture with File Management
 
-Kiến trúc microservices sẵn sàng cho production, xây dựng với NestJS, gRPC, PostgreSQL, Redis, Kong API Gateway và Dufs File Server.
+Kiến trúc microservices sẵn sàng cho production, xây dựng với NestJS, gRPC, PostgreSQL, Redis, Traefik API Gateway và Dufs File Server.
 
 ---
 
@@ -10,7 +10,7 @@ Dự án này là một hệ thống backend được xây dựng theo mô hình
 *   **Auth Service:** Quản lý xác thực, người dùng, và tích hợp Firebase.
 *   **Post Service:** Quản lý các bài viết (posts).
 *   **Dufs Service:** Dịch vụ quản lý file hiệu năng cao, xử lý upload/download.
-*   **Kong API Gateway:** Cổng vào duy nhất, xử lý routing và xác thực JWT cho file service.
+*   **Traefik API Gateway:** Cổng vào duy nhất, xử lý routing và xác thực JWT cho file service.
 *   **Centralized Migrations:** Cơ chế quản lý database schema tập trung.
 
 > **Để hiểu rõ hơn về kiến trúc, hãy đọc [ARCHITECTURE.md](./ARCHITECTURE.md).**
@@ -32,7 +32,7 @@ Dự án này là một hệ thống backend được xây dựng theo mô hình
 **Services sẽ chạy:**
 *   `Auth Service`: http://localhost:3001
 *   `Post Service`: http://localhost:3002
-*   `Kong Gateway`: http://localhost:8000
+*   `Traefik Gateway`: http://localhost:8000
 *   `PostgreSQL`, `Redis`, `Dufs Service` trong Docker.
 
 #### Production Mode (All in Docker)
@@ -44,7 +44,7 @@ Dự án này là một hệ thống backend được xây dựng theo mô hình
 # Lần đầu chạy, cần áp dụng migration:
 # cd migrations && npm run migrate:deploy:prod && cd ..
 ```
-*   Chỉ expose port `8000` (Kong Gateway).
+*   Chỉ expose port `8000` (Traefik Gateway).
 *   Tất cả services khác (auth, post, dufs) chạy internal trong Docker network.
 
 #### Kiểm tra hệ thống

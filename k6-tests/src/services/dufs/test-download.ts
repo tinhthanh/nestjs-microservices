@@ -10,7 +10,7 @@ export default function () {
   
   // Step 1: Login to get access token
   logStep('Step 1: Login to get access token');
-  const loginUrl = `${config.getKongUrl()}/auth/v1/auth/login`;
+  const loginUrl = `${config.getTraefikUrl()}/auth/v1/auth/login`;
   
   const loginPayload = JSON.stringify({
     email: config.testUser.email,
@@ -42,7 +42,7 @@ export default function () {
   
   // Step 2: List files
   logStep('Step 2: List available files');
-  const listUrl = `${config.getKongUrl()}/files/`;
+  const listUrl = `${config.getTraefikUrl()}/files/`;
   
   const listParams = {
     headers: {

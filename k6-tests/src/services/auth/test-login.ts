@@ -8,7 +8,7 @@ export const options = config.options;
 export default function () {
   logStep('Test Login');
   
-  const url = `${config.getKongUrl()}/auth/v1/auth/login`;
+  const url = `${config.getTraefikUrl()}/auth/v1/auth/login`;
   
   const payload = JSON.stringify({
     email: config.testUser.email,

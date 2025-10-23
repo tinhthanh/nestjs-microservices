@@ -3,13 +3,13 @@
 # Services (auth, post) run locally on host machine
 
 services:
-  # Traefik API Gateway (replaces Kong)
+  # Traefik API Gateway (replaces Traefik)
   traefik:
     image: traefik:v3.0
     container_name: bw-traefik-dev
     restart: unless-stopped
     ports:
-      - "8000:8000"    # HTTP API - same as Kong
+      - "8000:8000"    # HTTP API - same as Traefik
       - "8080:8080"    # Dashboard (dev only)
     volumes:
       - ./traefik/traefik.dev.yml:/etc/traefik/traefik.yml:ro

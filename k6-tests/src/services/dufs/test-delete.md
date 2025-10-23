@@ -5,26 +5,26 @@
 ```mermaid
 sequenceDiagram
     participant K6 as k6 Test
-    participant Kong as Kong Gateway
+    participant Traefik as Traefik Gateway
     participant Auth as Auth Service
     participant DUFS as DUFS Service
 
-    K6->>Kong: POST /auth/v1/auth/login
-    Kong->>Auth: Forward request
+    K6->>Traefik: POST /auth/v1/auth/login
+    Traefik->>Auth: Forward request
     Auth-->>K6: {accessToken}
     
     Note over K6: Upload file first
-    K6->>Kong: PUT /files/{filename}
-    Kong->>DUFS: Forward request
+    K6->>Traefik: PUT /files/{filename}
+    Traefik->>DUFS: Forward request
     DUFS-->>K6: 201 Created
     
-    K6->>Kong: DELETE /files/{filename}
+    K6->>Traefik: DELETE /files/{filename}
     Note over K6: Authorization: Bearer {accessToken}
-    Kong->>Kong: Verify JWT (Kong JWT Plugin)
-    Kong->>DUFS: Forward request
+    Traefik->>Traefik: Verify JWT (Traefik JWT Plugin)
+    Traefik->>DUFS: Forward request
     DUFS->>DUFS: Delete file from disk
-    DUFS-->>Kong: 200 or 204
-    Kong-->>K6: Return response
+    DUFS-->>Traefik: 200 or 204
+    Traefik-->>K6: Return response
 ```
 
 ## Test Steps

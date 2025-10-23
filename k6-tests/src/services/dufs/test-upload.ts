@@ -10,7 +10,7 @@ export default function () {
   
   // Step 1: Login to get access token
   logStep('Step 1: Login to get access token');
-  const loginUrl = `${config.getKongUrl()}/auth/v1/auth/login`;
+  const loginUrl = `${config.getTraefikUrl()}/auth/v1/auth/login`;
   
   const loginPayload = JSON.stringify({
     email: config.testUser.email,
@@ -44,7 +44,7 @@ export default function () {
   logStep('Step 2: Upload file');
   const timestamp = Date.now();
   const filename = `test-upload-${timestamp}.txt`;
-  const uploadUrl = `${config.getKongUrl()}/files/${filename}`;
+  const uploadUrl = `${config.getTraefikUrl()}/files/${filename}`;
   
   const fileContent = `Test file uploaded by k6 at ${new Date().toISOString()}`;
   
