@@ -1,15 +1,16 @@
 # 🚀 Hướng dẫn Triển khai Production
 
-Tài liệu này mô tả quy trình chuẩn để triển khai hệ thống NestJS Microservices lên môi trường production.
+Tài liệu này mô tả quy trình chuẩn để triển khai hệ thống NestJS Microservices và File Service lên môi trường production.
 
 ## 📋 Checklist Trước Khi Deploy
 
 *   [ ] Code đã được merge vào nhánh `main`.
 *   [ ] Tất cả unit tests và integration tests đều pass trên CI.
-*   [ ] Đã tạo migration mới cho các thay đổi về schema (nếu có) và đã test trên môi trường staging.
+*   [ ] Đã tạo migration mới cho các thay đổi về schema (nếu có).
 *   [ ] Đã tạo backup cho database production.
-*   [ ] Chuẩn bị kế hoạch rollback trong trường hợp xảy ra lỗi.
-*   [ ] Đảm bảo các biến môi trường cho production đã được cấu hình đúng, đặc biệt là `NODE_ENV=production`.
+*   **[ ] Đảm bảo thư mục `./managed_files` tồn tại trên server production để lưu trữ file.**
+*   [ ] Chuẩn bị kế hoạch rollback.
+*   [ ] Đảm bảo các biến môi trường cho production đã được cấu hình đúng.
 
 ## 🔄 Quy trình Triển khai
 
@@ -23,11 +24,6 @@ Tài liệu này mô tả quy trình chuẩn để triển khai hệ thống Nes
 
 2.  **Kiểm tra Trạng thái Hiện tại:**
     ```bash
-    # Đảm bảo không có migration nào đang chờ
-    cd migrations
-    npm run migrate:status
-    cd ..
-    
     # Kiểm tra các services đang chạy
     docker-compose ps
     ```
@@ -35,7 +31,6 @@ Tài liệu này mô tả quy trình chuẩn để triển khai hệ thống Nes
 ### Giai đoạn 2: Deploy Migrations (5 phút)
 
 1.  **Áp dụng các migrations mới:**
-    Lệnh này sử dụng file `.env.docker` để kết nối đến database production.
     ```bash
     cd migrations
     npm run migrate:deploy:prod
@@ -44,7 +39,6 @@ Tài liệu này mô tả quy trình chuẩn để triển khai hệ thống Nes
 2.  **Xác minh trạng thái migration:**
     ```bash
     npm run migrate:status
-    # Output mong muốn: "Database schema is up to date!"
     cd ..
     ```
 
@@ -56,7 +50,7 @@ Tài liệu này mô tả quy trình chuẩn để triển khai hệ thống Nes
     ```
 
 2.  **Build và khởi chạy lại các services:**
-    Sử dụng `--build` để tạo lại các Docker images với code mới nhất. Docker Compose sẽ thực hiện rolling update để giảm thiểu downtime.
+    Lệnh này sẽ build lại image cho `auth-service`, `post-service` và `dufs-service` nếu có thay đổi trong `Dockerfile` hoặc context.
     ```bash
     docker-compose up -d --build
     ```
@@ -71,12 +65,13 @@ Tài liệu này mô tả quy trình chuẩn để triển khai hệ thống Nes
 1.  **Kiểm tra trạng thái các services:**
     ```bash
     docker-compose ps
-    # Đảm bảo tất cả các services đều đang ở trạng thái "Up" và "healthy"
+    # Đảm bảo tất cả services (auth, post, dufs, kong, postgres, redis) đều "Up" và "healthy"
     ```
 
 2.  **Chạy script kiểm tra toàn diện:**
+    Bao gồm cả luồng upload/download file.
     ```bash
-    ./test-scripts/verify-all.sh
+    ./test-scripts/test-dufs-flow.sh
     ```
 
 3.  **Theo dõi logs để phát hiện lỗi:**
@@ -84,49 +79,25 @@ Tài liệu này mô tả quy trình chuẩn để triển khai hệ thống Nes
     docker-compose logs -f --tail=100
     ```
 
-4.  **Giám sát hệ thống** trong 30 phút để đảm bảo hiệu suất và không có lỗi phát sinh.
+4.  **Giám sát hệ thống** trong 30 phút.
 
 ## 🔙 Kế hoạch Rollback
 
-### Trường hợp Migration Lỗi
-
-1.  **Restore database từ backup:**
-    ```bash
-    psql -h <prod-host> -U <user> -d postgres < backup_prod_${TIMESTAMP}.sql
-    ```
-2.  **Revert lại commit chứa migration lỗi:**
-    ```bash
-    git revert <commit_hash>
-    ```
-3.  Deploy lại phiên bản code cũ.
-
 ### Trường hợp Service Lỗi
-
-1.  **Nhanh chóng revert lại commit trước đó:**
-    ```bash
-    git revert HEAD
-    ```
-2.  **Deploy lại phiên bản ổn định:**
-    ```bash
-    docker-compose up -d --build
-    ```
+1.  **Nhanh chóng revert lại commit trước đó:** `git revert HEAD`
+2.  **Deploy lại phiên bản ổn định:** `docker-compose up -d --build`
 3.  Phân tích log để tìm nguyên nhân lỗi.
 
 ## 🔐 Thiết lập Firebase cho Production
 
-Để tính năng Partner Verification hoạt động trong môi trường production, bạn cần:
+Để tính năng Partner Verification hoạt động, bạn cần:
 
-1.  **Lấy Service Account Key từ Firebase Console:**
-    *   Vào Project Settings > Service Accounts.
-    *   Tạo và tải về file JSON chứa key.
-
-2.  **Cập nhật Database:**
-    Trích xuất `private_key` và `client_email` từ file JSON và cập nhật vào bảng `third_party_integrations` cho `project_id` tương ứng.
+1.  **Lấy Service Account Key từ Firebase Console.**
+2.  **Cập nhật `private_key` và `client_email`** vào bảng `third_party_integrations` trong database.
     ```sql
     UPDATE third_party_integrations 
     SET 
-      private_key = '-----BEGIN PRIVATE KEY-----\n...your_key...\n-----END PRIVATE KEY-----\n',
-      client_email = 'your-service-account@...iam.gserviceaccount.com'
+      private_key = '...',
+      client_email = '...'
     WHERE project_id = 'your-project-id';
     ```
-    *Lưu ý: Script `auth/prisma/seed-firebase.ts` đã bao gồm key cho môi trường development.*
