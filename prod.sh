@@ -63,9 +63,9 @@ else
     exit 1
 fi
 
-# Check Kong
-echo -n "Checking Kong... "
-if curl -s http://localhost:8000 > /dev/null 2>&1; then
+# Check Traefik
+echo -n "Checking Traefik... "
+if curl -s http://localhost:8000/ping > /dev/null 2>&1; then
     echo -e "${GREEN}✓${NC}"
 else
     echo -e "${RED}✗${NC}"
@@ -114,10 +114,10 @@ echo "  - PostgreSQL:    postgres:5432 (internal)"
 echo "  - Redis:         redis:6379 (internal)"
 echo ""
 echo "📝 View Logs:"
-echo "  - All:  docker-compose -f docker-compose.yml logs -f"
-echo "  - Auth: docker-compose -f docker-compose.yml logs -f auth"
-echo "  - Post: docker-compose -f docker-compose.yml logs -f post"
-echo "  - Kong: docker-compose -f docker-compose.yml logs -f kong"
+echo "  - All:     docker-compose -f docker-compose.yml logs -f"
+echo "  - Auth:    docker-compose -f docker-compose.yml logs -f auth"
+echo "  - Post:    docker-compose -f docker-compose.yml logs -f post"
+echo "  - Traefik: docker-compose -f docker-compose.yml logs -f traefik"
 echo ""
 echo "🛑 To stop: docker-compose -f docker-compose.yml down"
 echo ""
