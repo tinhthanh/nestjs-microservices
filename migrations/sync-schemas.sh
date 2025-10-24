@@ -15,25 +15,46 @@ extract_models() {
     local service=$1
     local schema_file=$2
     local output_file=$3
-    
+
     echo "📝 Extracting models for $service..."
-    
-    # Start with header
-    cat > "$output_file" << 'EOF'
+
+    # Start with header based on service
+    if [ "$service" = "auth" ]; then
+        cat > "$output_file" << 'EOF'
 // This file is auto-generated from centralized schema
 // DO NOT EDIT MANUALLY - Use migrations/prisma/schema.prisma instead
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["auth_schema"]
 }
 
 EOF
-    
+    elif [ "$service" = "post" ]; then
+        cat > "$output_file" << 'EOF'
+// This file is auto-generated from centralized schema
+// DO NOT EDIT MANUALLY - Use migrations/prisma/schema.prisma instead
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["post_schema"]
+}
+
+EOF
+    fi
+
     # Extract models based on service
     if [ "$service" = "auth" ]; then
         # Extract User, Role, ThirdPartyIntegration
@@ -44,7 +65,7 @@ EOF
         # Extract Post model
         awk '/^\/\/ POST SERVICE MODELS/,0' "$schema_file" >> "$output_file"
     fi
-    
+
     echo "✅ $service schema updated"
 }
 

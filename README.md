@@ -85,11 +85,11 @@ Dự án này là một hệ thống backend được xây dựng theo mô hình
 #### Production Mode (All in Docker)
 
 ```bash
-# Start production environment
+# Start production environment (migrations run automatically)
 ./prod.sh
 
-# Lần đầu chạy, cần áp dụng migration:
-# cd migrations && npm run migrate:deploy:prod && cd ..
+# Run tests (test users created automatically)
+./prod.run
 ```
 
 **Production setup:**
@@ -97,6 +97,8 @@ Dự án này là một hệ thống backend được xây dựng theo mô hình
 *   Tất cả services khác chạy internal trong Docker network
 *   Traefik Dashboard **disabled** cho security
 *   All requests phải đi qua Traefik Gateway
+*   Migrations run automatically via Docker entrypoint scripts
+*   Test users created automatically by k6 tests
 
 #### Kiểm tra hệ thống
 
@@ -237,3 +239,40 @@ Khi chạy development mode, Traefik Dashboard sẽ available tại:
 - Monitor service health
 - View JWT authentication flow
 - Analyze request patterns và performance
+
+---
+
+## 📚 Documentation
+
+### Getting Started
+
+- **[Quick Start Guide](./QUICK_START.md)** - Get started in 5 minutes
+- **[Setup Guide](./docs/SETUP_GUIDE.md)** - Complete setup for Dev & Prod environments
+- **[Migration Guide](./docs/MIGRATION_GUIDE.md)** - Database migration workflows
+
+### Architecture & Design
+
+- **[Project Overview](./PROJECT_OVERVIEW.md)** - High-level architecture and technology stack
+- **[Architecture](./ARCHITECTURE.md)** - Detailed system architecture with diagrams
+- **[Database Architecture](./DATABASE_ARCHITECTURE.md)** - Multi-schema database design
+
+### Deployment & Operations
+
+- **[Deployment Guide](./DEPLOYMENT_GUIDE.md)** - Production deployment instructions
+- **[Traefik Migration](./TRAEFIK_MIGRATION.md)** - Kong to Traefik migration guide
+
+### Service Documentation
+
+- **[Auth Service](./docs/services/auth_service.md)** - Authentication and user management
+- **[Post Service](./docs/services/post_service.md)** - Post management service
+- **[Database Schema](./docs/architecture/database_schema.md)** - Database design and relationships
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our contributing guidelines before submitting PRs.
+
+## 📄 License
+
+This project is licensed under the MIT License.

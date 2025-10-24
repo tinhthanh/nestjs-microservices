@@ -29,6 +29,53 @@ fi
 
 echo ""
 echo "========================================="
+echo "👤 Setting up test users..."
+echo "========================================="
+echo ""
+
+# Create test user if not exists
+echo "Creating test user: user@example.com"
+RESPONSE=$(wget -q -O- --post-data='{
+  "email": "user@example.com",
+  "password": "User123456",
+  "firstName": "Test",
+  "lastName": "User"
+}' \
+  --header="Content-Type: application/json" \
+  "${TRAEFIK_URL}/auth/v1/auth/signup" 2>&1 || true)
+
+if echo "$RESPONSE" | grep -q "accessToken\|already exists\|Email already in use"; then
+  echo "✓ Test user ready (user@example.com)"
+else
+  echo "⚠️  Warning: Could not verify test user creation"
+  echo "$RESPONSE"
+fi
+
+# Create admin user if not exists
+echo "Creating admin user: admin@example.com"
+RESPONSE=$(wget -q -O- --post-data='{
+  "email": "admin@example.com",
+  "password": "Admin123456",
+  "firstName": "Admin",
+  "lastName": "User"
+}' \
+  --header="Content-Type: application/json" \
+  "${TRAEFIK_URL}/auth/v1/auth/signup" 2>&1 || true)
+
+if echo "$RESPONSE" | grep -q "accessToken\|already exists\|Email already in use"; then
+  echo "✓ Admin user ready (admin@example.com)"
+else
+  echo "⚠️  Warning: Could not verify admin user creation"
+  echo "$RESPONSE"
+fi
+
+# Wait a bit for database to commit
+sleep 2
+
+echo "✅ Test users ready"
+
+echo ""
+echo "========================================="
 echo "🧪 Running k6 Tests (${MODE} mode)"
 echo "========================================="
 echo ""

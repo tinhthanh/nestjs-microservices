@@ -45,3 +45,72 @@ export function logStep(step: string): void {
   console.log(`\n--- ${step} ---`);
 }
 
+/**
+ * Ensure a test user exists by attempting to create it
+ * If user already exists (409), that's fine - we'll use it
+ * Returns true if user exists (either created or already existed)
+ */
+export function ensureTestUser(baseUrl: string, email: string, password: string, firstName: string, lastName: string): boolean {
+  const url = `${baseUrl}/auth/v1/auth/signup`;
+
+  const payload = JSON.stringify({
+    email,
+    password,
+    firstName,
+    lastName,
+  });
+
+  const params = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  const response = http.post(url, payload, params);
+
+  // 201 = created, 409 = already exists (both are OK)
+  if (response.status === 201) {
+    logInfo(`Test user created: ${email}`);
+    return true;
+  } else if (response.status === 409) {
+    logInfo(`Test user already exists: ${email}`);
+    return true;
+  } else {
+    logError(`Failed to ensure test user exists: ${response.status}`);
+    console.log(response.body);
+    return false;
+  }
+}
+
+/**
+ * Login and get access token
+ * Returns the access token or null if login failed
+ */
+export function loginAndGetToken(baseUrl: string, email: string, password: string): string | null {
+  const url = `${baseUrl}/auth/v1/auth/login`;
+
+  const payload = JSON.stringify({
+    email,
+    password,
+  });
+
+  const params = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  const response = http.post(url, payload, params);
+
+  if (response.status === 201) {
+    const body = parseJsonResponse(response);
+    if (body && body.data && body.data.accessToken) {
+      return body.data.accessToken;
+    }
+  }
+
+  logError(`Login failed with status ${response.status}`);
+  console.log(response.body);
+  return null;
+}
+

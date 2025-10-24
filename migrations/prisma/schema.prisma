@@ -1,17 +1,20 @@
 // Centralized Prisma Schema for all services
 // This is the source of truth for database migrations
+// Using PostgreSQL Schemas for service isolation
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["auth_schema", "post_schema"]
 }
 
 // ============================================
-// AUTH SERVICE MODELS
+// AUTH SERVICE MODELS (auth_schema)
 // ============================================
 
 model User {
@@ -29,11 +32,14 @@ model User {
   deletedAt   DateTime? @map("deleted_at")
 
   @@map("users")
+  @@schema("auth_schema")
 }
 
 enum Role {
   ADMIN @map("ADMIN")
   USER  @map("USER")
+
+  @@schema("auth_schema")
 }
 
 model ThirdPartyIntegration {
@@ -48,10 +54,11 @@ model ThirdPartyIntegration {
   deletedAt      DateTime? @map("deleted_at")
 
   @@map("third_party_integrations")
+  @@schema("auth_schema")
 }
 
 // ============================================
-// POST SERVICE MODELS
+// POST SERVICE MODELS (post_schema)
 // ============================================
 
 model Post {
@@ -68,5 +75,6 @@ model Post {
   isDeleted Boolean   @default(false) @map("is_deleted")
 
   @@map("posts")
+  @@schema("post_schema")
 }
 
