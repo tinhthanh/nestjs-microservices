@@ -151,13 +151,17 @@ docker run -p 9001:9001 auth-service
 ### Authentication Endpoints
 
 #### Public Endpoints
-- `POST /auth/login` - User login
-- `POST /auth/signup` - User registration
-- `GET /auth/refresh` - Refresh access token
+- `POST /v1/auth/login` - User login
+- `POST /v1/auth/signup` - User registration
+- `GET /v1/auth/refresh` - Refresh access token
+- `GET /v1/auth/verify-token` - **Verify JWT token (Traefik ForwardAuth)**
 
 #### Protected Endpoints
-- `GET /user/profile` - Get user profile
-- `PUT /user/profile` - Update user profile
+- `GET /v1/user/profile` - Get user profile
+- `PUT /v1/user/profile` - Update user profile
+
+#### Partner Endpoints
+- `GET /v1/partner/verify` - Verify Firebase ID token and issue system tokens
 
 ### User Management Endpoints
 
@@ -172,7 +176,167 @@ docker run -p 9001:9001 auth-service
 ## 🔌 gRPC Services
 
 ### AuthService
-- `ValidateToken` - Validate JWT tokens and return user information
+- `ValidateToken` - Validate JWT tokens and return user information (used by Post Service)
+
+---
+
+## 🔐 Traefik ForwardAuth Integration
+
+### Overview
+
+Auth Service cung cấp endpoint `/v1/auth/verify-token` để tích hợp với **Traefik ForwardAuth middleware**. Endpoint này được sử dụng để xác thực JWT tokens cho các protected routes (đặc biệt là `/files` routes của DUFS Service).
+
+### How It Works
+
+1. **Client** gửi request đến Traefik với JWT token:
+   ```
+   PUT /files/document.pdf
+   Authorization: Bearer eyJhbGc...
+   ```
+
+2. **Traefik** áp dụng ForwardAuth middleware:
+   - Forward authentication request đến Auth Service
+   - Endpoint: `http://auth-service:9001/v1/auth/verify-token`
+   - Headers: `Authorization: Bearer eyJhbGc...`
+
+3. **Auth Service** xác thực token:
+   - Kiểm tra JWT signature với secret key
+   - Kiểm tra expiration time
+   - Kiểm tra issuer (`backend-works-app`)
+   - Trích xuất user information
+
+4. **Response:**
+   - **Success (200 OK):**
+     ```json
+     {
+       "valid": true,
+       "userId": "user-uuid",
+       "role": "USER"
+     }
+     ```
+     Response headers:
+     - `X-User-Id: user-uuid`
+     - `X-User-Role: USER`
+
+   - **Failure (401 Unauthorized):**
+     ```json
+     {
+       "statusCode": 401,
+       "message": "Invalid or expired token"
+     }
+     ```
+
+5. **Traefik** xử lý response:
+   - Nếu 200 OK: Thêm `X-User-Id` và `X-User-Role` headers vào request gốc và forward đến backend service
+   - Nếu 401: Dừng request và trả lỗi về client
+
+### Endpoint Details
+
+**Endpoint:** `GET /v1/auth/verify-token`
+
+**Request Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Success Response (200 OK):**
+```json
+{
+  "valid": true,
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "role": "USER"
+}
+```
+
+**Response Headers:**
+```
+X-User-Id: 550e8400-e29b-41d4-a716-446655440000
+X-User-Role: USER
+```
+
+**Error Response (401 Unauthorized):**
+```json
+{
+  "statusCode": 401,
+  "message": "Invalid or expired token",
+  "error": "Unauthorized"
+}
+```
+
+### Implementation
+
+<augment_code_snippet path="auth/src/modules/auth/controllers/auth.public.controller.ts" mode="EXCERPT">
+````typescript
+@PublicRoute()
+@Get('verify-token')
+@ApiOperation({
+    summary: 'Verify JWT token',
+    description: 'Validates JWT token for Traefik ForwardAuth...',
+})
+async verifyToken(@Headers('authorization') authHeader: string) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        throw new UnauthorizedException('Missing or invalid authorization header');
+    }
+    const token = authHeader.substring(7);
+    const payload = await this.authService.verifyToken(token);
+    return {
+        valid: true,
+        userId: payload.id,
+        role: payload.role,
+    };
+}
+````
+</augment_code_snippet>
+
+### Traefik Configuration
+
+**Dynamic Config (`traefik/dynamic-config.yml`):**
+```yaml
+middlewares:
+  jwt-auth:
+    forwardAuth:
+      address: "http://auth-service:9001/v1/auth/verify-token"
+      authResponseHeaders:
+        - "X-User-Id"
+        - "X-User-Role"
+
+routers:
+  dufs-routes:
+    rule: "PathPrefix(`/files`)"
+    service: dufs-service
+    middlewares:
+      - jwt-auth
+      - strip-files-prefix
+      - security-headers
+```
+
+### Benefits
+
+- ✅ **Centralized Authentication**: JWT validation tại API Gateway
+- ✅ **Reduced Backend Load**: DUFS Service không cần implement JWT validation
+- ✅ **Consistent Security**: Tất cả file operations đều được bảo vệ
+- ✅ **Easy to Maintain**: Thay đổi authentication logic chỉ cần update Auth Service
+- ✅ **User Context**: Backend services nhận `X-User-Id` và `X-User-Role` headers
+
+### Testing
+
+```bash
+# 1. Login để lấy token
+TOKEN=$(curl -s -X POST http://localhost:8000/auth/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password123"}' \
+  | jq -r '.data.accessToken')
+
+# 2. Test verify-token endpoint trực tiếp
+curl -X GET http://localhost:8000/auth/v1/auth/verify-token \
+  -H "Authorization: Bearer $TOKEN"
+
+# 3. Test qua Traefik ForwardAuth (upload file)
+curl -X PUT http://localhost:8000/files/test.txt \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: text/plain" \
+  -d "Hello World"
+```
 
 ## 🔧 Configuration
 

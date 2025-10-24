@@ -11,9 +11,11 @@
 **Chạy gì:**
 - ✅ PostgreSQL trong Docker (port 5435)
 - ✅ Redis trong Docker (port 6379)
-- ✅ Traefik Gateway trong Docker (port 8000, 8001)
-- ✅ Auth Service chạy local (port 3001)
-- ✅ Post Service chạy local (port 3002)
+- ✅ **Traefik v3.0 Gateway** trong Docker (port 8000)
+- ✅ **Traefik Dashboard** (port 8080) - Monitoring UI
+- ✅ Auth Service chạy local (port 3001) - Hot reload enabled
+- ✅ Post Service chạy local (port 3002) - Hot reload enabled
+- ✅ DUFS Service trong Docker (port 5000)
 
 **Dừng:**
 ```bash
@@ -58,22 +60,37 @@ docker-compose -f docker-compose.yml down
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| Traefik Gateway | http://localhost:8000 | API Gateway (public) |
-| Traefik Admin | http://localhost:8001 | Traefik Admin API |
-| Auth Service | http://localhost:3001 | Auth Service (direct) |
-| Post Service | http://localhost:3002 | Post Service (direct) |
-| Auth Swagger | http://localhost:3001/docs | API Documentation |
-| Post Swagger | http://localhost:3002/docs | API Documentation |
+| **Traefik Gateway** | http://localhost:8000 | **API Gateway (public endpoint)** |
+| **Traefik Dashboard** | http://localhost:8080 | **Monitoring UI - Routers, Services, Middlewares** |
+| Auth Service (Direct) | http://localhost:3001 | Auth Service HTTP API |
+| Post Service (Direct) | http://localhost:3002 | Post Service HTTP API |
+| Auth Swagger | http://localhost:3001/docs | Auth API Documentation |
+| Post Swagger | http://localhost:3002/docs | Post API Documentation |
 | PostgreSQL | localhost:5435 | Database |
 | Redis | localhost:6379 | Cache |
+
+**Recommended: Truy cập qua Traefik Gateway**
+- Auth API: http://localhost:8000/auth/*
+- User API: http://localhost:8000/v1/user/*
+- Partner API: http://localhost:8000/v1/partner/*
+- Post API: http://localhost:8000/post/*
+- File API: http://localhost:8000/files/* (requires JWT)
 
 ### Production Mode
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| Traefik Gateway | http://localhost:8000 | **ONLY PUBLIC ENDPOINT** |
+| **Traefik Gateway** | http://localhost:8000 | **ONLY PUBLIC ENDPOINT** |
+
+**All routes:**
+- Auth: http://localhost:8000/auth/*
+- User: http://localhost:8000/v1/user/*
+- Partner: http://localhost:8000/v1/partner/*
+- Post: http://localhost:8000/post/*
+- Files: http://localhost:8000/files/* (requires JWT)
 
 Tất cả services khác chạy internal trong Docker network.
+Traefik Dashboard **disabled** trong production mode.
 
 ---
 
@@ -232,16 +249,93 @@ docker-compose -f docker-compose.yml down
 ## ✅ Quick Health Check
 
 ```bash
+# Traefik Gateway
+curl http://localhost:8000/ping
+# Response: OK
+
+# Development - Direct access
+curl http://localhost:3001/health  # Auth Service
+curl http://localhost:3002/health  # Post Service
+
+# Development - Via Traefik Gateway
+curl http://localhost:8000/auth/health
+curl http://localhost:8000/post/health
+
+# Production - Only via Traefik Gateway
+curl http://localhost:8000/auth/health
+curl http://localhost:8000/post/health
+```
+
+---
+
+## 🎯 Traefik Dashboard (Development Only)
+
+Khi chạy `./dev.sh`, Traefik Dashboard sẽ available tại:
+
+**URL:** http://localhost:8080
+
+**Features:**
+- 📊 Real-time monitoring
+- 🔀 View all routers và routing rules
+- 🎯 View all services và health status
+- 🔧 View all middlewares (rate limiting, auth, headers)
+- 📈 Request metrics và statistics
+
+**Useful for:**
+- Debug routing issues
+- Monitor service health
+- View middleware configuration
+- Analyze request patterns
+
+---
+
+## 🔐 Testing JWT Authentication
+
+```bash
+# 1. Login để lấy access token
+TOKEN=$(curl -s -X POST http://localhost:8000/auth/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password123"}' \
+  | jq -r '.data.accessToken')
+
+# 2. Upload file với JWT token
+curl -X PUT http://localhost:8000/files/test.txt \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: text/plain" \
+  -d "Hello World"
+
+# 3. Download file
+curl http://localhost:8000/files/test.txt \
+  -H "Authorization: Bearer $TOKEN"
+
+# 4. Delete file
+curl -X DELETE http://localhost:8000/files/test.txt \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Note:** Traefik sẽ tự động xác thực JWT token qua ForwardAuth middleware trước khi forward request đến DUFS Service.
+
+---
+
+## 📊 Traefik Logs
+
+```bash
 # Development
-curl http://localhost:3001/health
-curl http://localhost:3002/health
-curl http://localhost:8000/health
+docker logs -f bw-traefik-dev
 
 # Production
-curl http://localhost:8000/health
+docker logs -f bw-traefik
+
+# Filter errors only
+docker logs bw-traefik 2>&1 | grep -i error
+
+# View access logs (JSON format)
+docker logs bw-traefik 2>&1 | grep -i "requestpath"
 ```
 
 ---
 
 **🎉 That's it! Chỉ cần 2 lệnh: `./dev.sh` và `./prod.sh`**
+
+**🚀 Traefik Dashboard:** http://localhost:8080 (development mode)
 
