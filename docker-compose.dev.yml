@@ -64,10 +64,7 @@ services:
   dufs-service:
       container_name: bw-dufs-service
       restart: unless-stopped
-      # Sử dụng 'build' thay cho 'image'
-      build:
-        context: ./dms/dufs  # Đường dẫn đến thư mục chứa Dockerfile
-        dockerfile: Dockerfile # Tên của Dockerfile
+      image: sigoden/dufs:latest
       command: ["/data", "-p", "5000", "--allow-all"]
       volumes:
         - ./managed_files:/data  # Ánh xạ thư mục local vào container
